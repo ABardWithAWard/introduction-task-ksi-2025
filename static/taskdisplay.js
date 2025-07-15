@@ -8,9 +8,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         tasks.forEach(task => {
             const li = document.createElement("li");
-            li.textContent = `${task.name}: ${task.description}`;
+            li.textContent = `${task.name}: ${task.description} `;
+
+            const button = document.createElement("button");
+            button.textContent = `Delete task ${task.id}`;
+            button.id = `task-btn-${task.id}`;
+            button.dataset.taskId = task.id;
+            button.addEventListener("click", () => {
+                alert(`Clicked!`);
+            });
+
+            li.appendChild(button);
             taskList.appendChild(li);
         });
+
     } catch (error) {
         console.error("Error fetching tasks:", error);
         countSpan.textContent = "Error";
