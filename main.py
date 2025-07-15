@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import FastAPI, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -50,12 +51,17 @@ async def create_item(item: TaskCreate, db: Session = Depends(get_db)):
     db.refresh(db_item)
     return db_item
 
+@app.get("/tasks/", response_model=List[TaskResponse])
+async def get_all_tasks(db: Session = Depends(get_db)):
+    return db.query(Task).all()
+
 @app.get("/tasks/{task_id}", response_model=TaskResponse)
 async def read_item(task_id: int, db: Session = Depends(get_db)):
     db_item = db.query(Task).filter(Task.id == task_id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return db_item
+# Getting tasks by id is unused for now, but was in a tutorial, so for now it can stay
 
 @app.get("/", response_class=HTMLResponse)
 async def read_item(request: Request):
