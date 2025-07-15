@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
+from starlette import status
 
 app = FastAPI()
 
@@ -54,6 +55,17 @@ async def create_item(item: TaskCreate, db: Session = Depends(get_db)):
 @app.get("/tasks/", response_model=List[TaskResponse])
 async def get_all_tasks(db: Session = Depends(get_db)):
     return db.query(Task).all()
+
+
+@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(task_id: int, db: Session = Depends(get_db)):
+    db_item = db.query(Task).filter(Task.id == task_id).first()
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    db.delete(db_item)
+    db.commit()
+    return
 
 @app.get("/tasks/{task_id}", response_model=TaskResponse)
 async def read_item(task_id: int, db: Session = Depends(get_db)):

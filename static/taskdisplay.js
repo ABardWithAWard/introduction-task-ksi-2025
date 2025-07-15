@@ -14,8 +14,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             button.textContent = `Delete task ${task.id}`;
             button.id = `task-btn-${task.id}`;
             button.dataset.taskId = task.id;
-            button.addEventListener("click", () => {
-                alert(`Clicked!`);
+            button.addEventListener("click", async () => {
+                try {
+                    const response = await fetch(`http://127.0.0.1:8000/tasks/${task.id}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                    });
+
+                    if (response.ok) {
+                        alert(`Task ${task.id} deleted successfully`);
+                        button.parentElement.remove();
+                    } else {
+                        const error = await response.json();
+                        alert(`Failed to delete task: ${error.detail || "Unknown error"}`);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("An error occurred while deleting the task.");
+                }
             });
 
             li.appendChild(button);
